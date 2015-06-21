@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class Form1
+Partial Class MainForm
     Inherits System.Windows.Forms.Form
 
     'Form esegue l'override del metodo Dispose per pulire l'elenco dei componenti.
@@ -22,25 +22,28 @@ Partial Class Form1
     'Non modificarla nell'editor del codice.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.lblText1 = New System.Windows.Forms.Label()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainForm))
+        Me.lblStaticCurrentVer = New System.Windows.Forms.Label()
         Me.lblCurrentVer = New System.Windows.Forms.Label()
-        Me.lblText2 = New System.Windows.Forms.Label()
+        Me.lblStaticLatestVer = New System.Windows.Forms.Label()
         Me.lblLatestVersion = New System.Windows.Forms.Label()
         Me.lblInfo = New System.Windows.Forms.Label()
         Me.ckbIgnore = New System.Windows.Forms.CheckBox()
         Me.btnStart = New System.Windows.Forms.Button()
         Me.downloadBar = New System.Windows.Forms.ProgressBar()
         Me.btnUpdate = New System.Windows.Forms.Button()
+        Me.infoPanel = New System.Windows.Forms.Panel()
+        Me.infoPanel.SuspendLayout()
         Me.SuspendLayout()
         '
-        'lblText1
+        'lblStaticCurrentVer
         '
-        Me.lblText1.AutoSize = True
-        Me.lblText1.Location = New System.Drawing.Point(13, 13)
-        Me.lblText1.Name = "lblText1"
-        Me.lblText1.Size = New System.Drawing.Size(86, 13)
-        Me.lblText1.TabIndex = 0
-        Me.lblText1.Text = "Versione attuale:"
+        Me.lblStaticCurrentVer.AutoSize = True
+        Me.lblStaticCurrentVer.Location = New System.Drawing.Point(13, 13)
+        Me.lblStaticCurrentVer.Name = "lblStaticCurrentVer"
+        Me.lblStaticCurrentVer.Size = New System.Drawing.Size(86, 13)
+        Me.lblStaticCurrentVer.TabIndex = 0
+        Me.lblStaticCurrentVer.Text = "Versione attuale:"
         '
         'lblCurrentVer
         '
@@ -53,14 +56,14 @@ Partial Class Form1
         Me.lblCurrentVer.TabIndex = 1
         Me.lblCurrentVer.Text = "---"
         '
-        'lblText2
+        'lblStaticLatestVer
         '
-        Me.lblText2.AutoSize = True
-        Me.lblText2.Location = New System.Drawing.Point(164, 13)
-        Me.lblText2.Name = "lblText2"
-        Me.lblText2.Size = New System.Drawing.Size(82, 13)
-        Me.lblText2.TabIndex = 2
-        Me.lblText2.Text = "Ultima versione:"
+        Me.lblStaticLatestVer.AutoSize = True
+        Me.lblStaticLatestVer.Location = New System.Drawing.Point(164, 13)
+        Me.lblStaticLatestVer.Name = "lblStaticLatestVer"
+        Me.lblStaticLatestVer.Size = New System.Drawing.Size(82, 13)
+        Me.lblStaticLatestVer.TabIndex = 2
+        Me.lblStaticLatestVer.Text = "Ultima versione:"
         '
         'lblLatestVersion
         '
@@ -76,7 +79,8 @@ Partial Class Form1
         'lblInfo
         '
         Me.lblInfo.AutoSize = True
-        Me.lblInfo.Location = New System.Drawing.Point(3, 117)
+        Me.lblInfo.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.lblInfo.Location = New System.Drawing.Point(4, 4)
         Me.lblInfo.Name = "lblInfo"
         Me.lblInfo.Size = New System.Drawing.Size(38, 13)
         Me.lblInfo.TabIndex = 4
@@ -85,7 +89,7 @@ Partial Class Form1
         'ckbIgnore
         '
         Me.ckbIgnore.AutoSize = True
-        Me.ckbIgnore.Location = New System.Drawing.Point(16, 46)
+        Me.ckbIgnore.Location = New System.Drawing.Point(12, 48)
         Me.ckbIgnore.Name = "ckbIgnore"
         Me.ckbIgnore.Size = New System.Drawing.Size(179, 17)
         Me.ckbIgnore.TabIndex = 5
@@ -103,48 +107,63 @@ Partial Class Form1
         '
         'downloadBar
         '
-        Me.downloadBar.Location = New System.Drawing.Point(13, 85)
+        Me.downloadBar.Location = New System.Drawing.Point(12, 73)
         Me.downloadBar.Name = "downloadBar"
-        Me.downloadBar.Size = New System.Drawing.Size(376, 23)
+        Me.downloadBar.Size = New System.Drawing.Size(376, 19)
         Me.downloadBar.TabIndex = 7
         '
         'btnUpdate
         '
-        Me.btnUpdate.Location = New System.Drawing.Point(251, 56)
+        Me.btnUpdate.Location = New System.Drawing.Point(250, 44)
         Me.btnUpdate.Name = "btnUpdate"
         Me.btnUpdate.Size = New System.Drawing.Size(138, 23)
         Me.btnUpdate.TabIndex = 8
         Me.btnUpdate.Text = "Controlla aggiornamenti"
         Me.btnUpdate.UseVisualStyleBackColor = True
         '
-        'Form1
+        'infoPanel
+        '
+        Me.infoPanel.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.infoPanel.Controls.Add(Me.lblInfo)
+        Me.infoPanel.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.infoPanel.Location = New System.Drawing.Point(0, 103)
+        Me.infoPanel.Name = "infoPanel"
+        Me.infoPanel.Size = New System.Drawing.Size(401, 21)
+        Me.infoPanel.TabIndex = 9
+        '
+        'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(401, 133)
+        Me.ClientSize = New System.Drawing.Size(401, 124)
+        Me.Controls.Add(Me.infoPanel)
         Me.Controls.Add(Me.btnUpdate)
         Me.Controls.Add(Me.downloadBar)
         Me.Controls.Add(Me.btnStart)
         Me.Controls.Add(Me.ckbIgnore)
-        Me.Controls.Add(Me.lblInfo)
         Me.Controls.Add(Me.lblLatestVersion)
-        Me.Controls.Add(Me.lblText2)
+        Me.Controls.Add(Me.lblStaticLatestVer)
         Me.Controls.Add(Me.lblCurrentVer)
-        Me.Controls.Add(Me.lblText1)
-        Me.Name = "Form1"
-        Me.Text = "CPs updater"
+        Me.Controls.Add(Me.lblStaticCurrentVer)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
+        Me.Name = "MainForm"
+        Me.Text = "CPs Updater"
+        Me.infoPanel.ResumeLayout(False)
+        Me.infoPanel.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents lblText1 As Label
+    Friend WithEvents lblStaticCurrentVer As Label
     Friend WithEvents lblCurrentVer As Label
-    Friend WithEvents lblText2 As Label
+    Friend WithEvents lblStaticLatestVer As Label
     Friend WithEvents lblLatestVersion As Label
     Friend WithEvents lblInfo As Label
     Friend WithEvents ckbIgnore As CheckBox
     Friend WithEvents btnStart As Button
     Friend WithEvents downloadBar As ProgressBar
     Friend WithEvents btnUpdate As Button
+    Friend WithEvents infoPanel As Panel
 End Class

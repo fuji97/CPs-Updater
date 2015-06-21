@@ -8,11 +8,11 @@ Imports System.Runtime.InteropServices
 
 ' Controllare i valori degli attributi dell'assembly
 
-<Assembly: AssemblyTitle("Updater")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("")>
+<Assembly: AssemblyTitle("CPs Updater")>
+<Assembly: AssemblyDescription("Update checker for Pokémon Cremisi Portals")>
+<Assembly: AssemblyCompany("Hoseki Team")>
 <Assembly: AssemblyProduct("Updater")>
-<Assembly: AssemblyCopyright("Copyright ©  2015")>
+<Assembly: AssemblyCopyright("Copyright © 2015")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>

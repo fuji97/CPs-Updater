@@ -6,18 +6,20 @@ Imports Newtonsoft.Json.Linq
 Imports System.Collections.Generic
 Imports System.Math
 
-' TODO: Icona, nome applicazione, compilazione prorietà, controllo eccezione no internet, abilitare "ignore update", sistemare "Form1.Load", Aggiungere controllo versione via file, controllare errore "dialogResult" (evidenziato verde nella dichiarazione)
+' TODO: abilitare sistemare "Form1.Load"
 
-Public Class Form1
-    Const appName = "{0AGHJ15F-G95D-06F4-KM90-G9XZI5DON37D}_is1"
-    Const url = "https://api.github.com/repos/Bl00d-Kirito/HSK-Cremisi_Portals_Demo/releases/latest"
-    Const Unknown = -2
-    Const Over = -1
-    Const Equal = 0
-    Const Under = 1
-    Const Check = 2
-    Const Update = 3
-    Const Downloading = 4
+Public Class MainForm
+    Const APP_NAME = "{0AGHJ15F-G95D-06F4-KM90-G9XZI5DON37D}_is1"
+    Const URL = "https://api.github.com/repos/Bl00d-Kirito/HSK-Cremisi_Portals_Demo/releases/latest"
+    Const VERSION_FILE_NAME = "VERSION"
+    Const _Unknown = -2
+    Const _Over = -1
+    Const _Equal = 0
+    Const _Under = 1
+    Const _Check = 2
+    Const _Update = 3
+    Const _Downloading = 4
+
     Dim currentPath As String = Directory.GetCurrentDirectory()
     Dim currentVer As String
     Dim latestVer As String
@@ -27,44 +29,68 @@ Public Class Form1
     Dim items As List(Of JToken)
     Dim jsonReader As StreamReader
     Dim haveNew As Integer
-    Dim dialogResult As MsgBoxResult
     Dim WithEvents download As WebClient = New WebClient
     Dim downloadStatus As Integer
     Dim downloadSuccesfull As Boolean = False
 
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         My.Application.SaveMySettingsOnExit = True
 
         If My.Settings.ignoreUpdate Then
             Console.WriteLine("Ignoring update...")
+            Process.Start(currentPath & "\Game.exe")
+            Application.Exit()
             ckbIgnore.Checked = True
         End If
-        changeDownloadStatus(Check)
-        Dim checkResult As Integer = checkUpdate()
+        changeDownloadStatus(_Check)
+        Dim checkResult As Integer = checkUpdate(True)
 
-        If checkResult = Under Then
-            dialogResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
-            If dialogResult = MsgBoxResult.Yes Then
+        If checkResult = _Under And downloadStatus <> _Downloading Then
+            Dim userRes As MsgBoxResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
+            If userRes = MsgBoxResult.Yes Then
                 downloadUpdate()
             End If
-        ElseIf checkResult = Equal
+        ElseIf checkResult <> _Update And downloadStatus <> _Downloading
             Process.Start(currentPath & "\Game.exe")
             Application.Exit()
         End If
     End Sub
 
-    Private Function checkUpdate()
-        currentVer = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" & appName, "DisplayVersion", Nothing)
+    Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.Closing
+        checkbeforeClose()
+    End Sub
+
+    Private Function checkUpdate(silent As Boolean)
+        currentVer = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" & APP_NAME, "DisplayVersion", Nothing)
         If currentVer Is Nothing Then
-            ' TODO
+            Console.WriteLine("Can't read the version key from Windows registry")
             currentVer = "---"
+            Try
+                Dim fileVerReader As New StreamReader(VERSION_FILE_NAME)
+                currentVer = fileVerReader.ReadToEnd()
+            Catch ex As IOException
+                Console.WriteLine("Can't find file " & VERSION_FILE_NAME & ": " & ex.Message)
+                MsgBox("Impossibile leggere la versione attuale del gioco", MsgBoxStyle.Critical + MsgBoxStyle.OkOnly, "Versione del gioco sconosciuta")
+            End Try
+            If My.Settings.installationAlert Then
+                Dim mUserResponse As MsgBoxResult = MsgBox("Il gioco non è installato correttamente, questo potrebbe compromettere il funzionamento del sistema d'aggiornamento, è consigliabile re-installarlo (i dati di gioco non andranno persi)" & vbCrLf & "Vuoi scaricarlo e installarlo? (No = Non visualizzare più questo messaggio)", MsgBoxStyle.Information + MsgBoxStyle.YesNoCancel, "Installazione non corretta")
+                If mUserResponse = MsgBoxResult.Yes Then
+                    My.Settings.installationAlert = False
+                    If checkUpdate(False) <> _Unknown Then
+                        downloadUpdate()
+                    End If
+                    My.Settings.installationAlert = True
+                ElseIf mUserResponse = MsgBoxResult.No Then
+                    My.Settings.installationAlert = False
+                End If
+            End If
         End If
         Console.WriteLine("Current version: " & currentVer)
         lblCurrentVer.Text = currentVer
 
         latestVer = "---"
         Try
-            Dim request As HttpWebRequest = HttpWebRequest.Create(url)
+            Dim request As HttpWebRequest = HttpWebRequest.Create(URL)
             request.Proxy = Nothing
             request.UserAgent = "Test"
 
@@ -74,9 +100,18 @@ Public Class Form1
             Dim streamReader As New System.IO.StreamReader(responseStream)
             data = streamReader.ReadToEnd
             streamReader.Close()
+        Catch ex As WebException
+            Console.WriteLine(ex.Message)
+            If Not silent Then
+                MsgBox("Impossibile connettersi al server" & vbCrLf & "Controlla se la connessione a internet è attiva" & vbCrLf & ex.Message, MsgBoxStyle.Exclamation + MsgBoxStyle.OkOnly, "Controllo aggiornamenti fallito")
+            End If
+            Return _Unknown
         Catch ex As Exception
             Console.WriteLine(ex.Message)
-            MsgBox("Impossibile controllare gli aggiornamenti" & vbCrLf & ex.Message, MsgBoxStyle.Exclamation + MsgBoxStyle.OkOnly, "Aggiornamento fallito")
+            If Not silent Then
+                MsgBox("Impossibile controllare gli aggiornamenti" & vbCrLf & ex.Message, MsgBoxStyle.Exclamation + MsgBoxStyle.OkOnly, "Controllo aggiornamenti fallito")
+            End If
+            Return _Unknown
         End Try
 
         If Not data Is Nothing Then
@@ -98,17 +133,17 @@ Public Class Form1
             Next
         End If
 
-        currentVer = "v1"
-
-        haveNew = Unknown
+        haveNew = _Unknown
         If Not currentVer Is Nothing And Not latestVer Is Nothing Then
             haveNew = checkVersion(currentVer, latestVer)
-            If haveNew = 1 Then
-                Console.WriteLine("New version avaiable: " & latestVer & "(> " & currentVer & ")")
-                changeDownloadStatus(Update)
-            ElseIf haveNew = -1 Then
-                Console.WriteLine("Not-avaiable version: " & latestVer & "(< " & currentVer & ")")
-            ElseIf haveNew = 0 Then
+            If haveNew = _Under Then
+                Console.WriteLine("New version available: " & latestVer & "(> " & currentVer & ")")
+                If downloadStatus <> _Downloading Then
+                    changeDownloadStatus(_Update)
+                End If
+            ElseIf haveNew = _Over Then
+                Console.WriteLine("Not-available version: " & latestVer & "(< " & currentVer & ")")
+            ElseIf haveNew = _Equal Then
                 Console.WriteLine("Updated version: " & latestVer & "(= " & currentVer & ")")
             End If
         End If
@@ -119,29 +154,28 @@ Public Class Form1
         Try
             lblInfo.Text = "Avvio download"
             download.DownloadFileAsync(New Uri(downloadLink), "install.exe")
-            changeDownloadStatus(Downloading)
+            changeDownloadStatus(_Downloading)
             downloadSuccesfull = True
         Catch ex As WebException
             Console.WriteLine(ex.Message)
             MsgBox("Errore nel download del file: " & ex.Message, MsgBoxStyle.Critical + MsgBoxStyle.OkOnly)
-        Finally
         End Try
     End Sub
 
     Private Sub changeDownloadStatus(status As Integer)
         downloadStatus = status
         Select Case status
-            Case Check
+            Case _Check
                 btnUpdate.Text = "Controlla aggiornamenti"
-            Case Update
+            Case _Update
                 btnUpdate.Text = "Scarica aggiornamento"
-            Case Downloading
+            Case _Downloading
                 btnUpdate.Text = "Annulla aggiornamento"
         End Select
     End Sub
 
     Private Sub download_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles download.DownloadProgressChanged
-        If downloadStatus = Downloading Then
+        If downloadStatus = _Downloading Then
             downloadBar.Value = e.ProgressPercentage
             lblInfo.Text = e.ProgressPercentage & "% - Scaricato " & Round(CDbl(e.BytesReceived) / 1048576, 1) & " di " & Round(CDbl(e.TotalBytesToReceive) / 1048576, 1) & " MB"
         End If
@@ -149,7 +183,11 @@ Public Class Form1
 
     Private Sub download_DownloadFileCompleted() Handles download.DownloadFileCompleted
         If downloadSuccesfull Then
-            Process.Start(currentPath & "\install.exe")
+            Try
+                Process.Start(currentPath & "\install.exe")
+            Catch ex As Exception
+                Console.WriteLine(ex.Message)
+            End Try
             Application.Exit()
         End If
     End Sub
@@ -191,12 +229,12 @@ Public Class Form1
     End Function
 
     Private Sub checkbeforeClose()
-        If downloadStatus = Downloading Then
+        If downloadStatus = _Downloading Then
             lblInfo.Text = "Annullamento download"
             downloadSuccesfull = False
             download.CancelAsync()
             download.Dispose()
-            changeDownloadStatus(Update)
+            changeDownloadStatus(_Update)
             Threading.Thread.Sleep(400)
             My.Computer.FileSystem.DeleteFile(currentPath & "\install.exe")
             downloadBar.Value = 0
@@ -206,24 +244,28 @@ Public Class Form1
 
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         Select Case downloadStatus
-            Case Check
-                checkUpdate()
+            Case _Check
+                checkUpdate(False)
 
-                If downloadStatus = Update Then
-                    dialogResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
-                    If dialogResult = MsgBoxResult.Yes Then
+                If downloadStatus = _Update Then
+                    Dim userRes As MsgBoxResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
+                    If userRes = MsgBoxResult.Yes Then
                         downloadUpdate()
                     End If
                 End If
-            Case Update
+            Case _Update
                 btnUpdate.Text = "Scarica aggiornamento"
-                downloadUpdate()
-            Case Downloading
+                If checkUpdate(False) = _Under Then
+                    downloadUpdate()
+                Else
+                    changeDownloadStatus(_Check)
+                End If
+            Case _Downloading
                 lblInfo.Text = "Annullamento download"
                 downloadSuccesfull = False
                 download.CancelAsync()
                 download.Dispose()
-                changeDownloadStatus(Update)
+                changeDownloadStatus(_Update)
                 Threading.Thread.Sleep(400)
                 My.Computer.FileSystem.DeleteFile(currentPath & "\install.exe")
                 downloadBar.Value = 0
@@ -239,5 +281,11 @@ Public Class Form1
 
     Private Sub ckbIgnore_CheckedChanged(sender As Object, e As EventArgs) Handles ckbIgnore.CheckedChanged
         My.Settings.ignoreUpdate = ckbIgnore.Checked
+        If ckbIgnore.Checked = True Then
+            Dim mConfirm As MsgBoxResult = MsgBox("ATTENZIONE: abilitando questa opzione non sarà più possibile accedere all'updater, quindi l'unico modo per disabilitarla sarà modificare manualmente il file di configurazione" & vbCrLf & "Sei sicuro di volerla abilitare?", MsgBoxStyle.Exclamation + MsgBoxStyle.YesNo, "Attenzione")
+            If mConfirm = MsgBoxResult.No Then
+                ckbIgnore.Checked = False
+            End If
+        End If
     End Sub
 End Class
