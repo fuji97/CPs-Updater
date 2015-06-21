@@ -27,9 +27,10 @@ Partial Class Form1
         Me.lblText2 = New System.Windows.Forms.Label()
         Me.lblLatestVersion = New System.Windows.Forms.Label()
         Me.lblInfo = New System.Windows.Forms.Label()
-        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
+        Me.ckbIgnore = New System.Windows.Forms.CheckBox()
+        Me.btnStart = New System.Windows.Forms.Button()
+        Me.downloadBar = New System.Windows.Forms.ProgressBar()
+        Me.btnUpdate = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'lblText1
@@ -45,17 +46,17 @@ Partial Class Form1
         '
         Me.lblCurrentVer.AutoSize = True
         Me.lblCurrentVer.BackColor = System.Drawing.Color.LemonChiffon
-        Me.lblCurrentVer.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblCurrentVer.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblCurrentVer.Location = New System.Drawing.Point(102, 13)
         Me.lblCurrentVer.Name = "lblCurrentVer"
-        Me.lblCurrentVer.Size = New System.Drawing.Size(25, 13)
+        Me.lblCurrentVer.Size = New System.Drawing.Size(22, 13)
         Me.lblCurrentVer.TabIndex = 1
         Me.lblCurrentVer.Text = "---"
         '
         'lblText2
         '
         Me.lblText2.AutoSize = True
-        Me.lblText2.Location = New System.Drawing.Point(196, 13)
+        Me.lblText2.Location = New System.Drawing.Point(164, 13)
         Me.lblText2.Name = "lblText2"
         Me.lblText2.Size = New System.Drawing.Size(82, 13)
         Me.lblText2.TabIndex = 2
@@ -65,10 +66,10 @@ Partial Class Form1
         '
         Me.lblLatestVersion.AutoSize = True
         Me.lblLatestVersion.BackColor = System.Drawing.Color.LemonChiffon
-        Me.lblLatestVersion.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblLatestVersion.Location = New System.Drawing.Point(280, 12)
+        Me.lblLatestVersion.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblLatestVersion.Location = New System.Drawing.Point(248, 12)
         Me.lblLatestVersion.Name = "lblLatestVersion"
-        Me.lblLatestVersion.Size = New System.Drawing.Size(25, 13)
+        Me.lblLatestVersion.Size = New System.Drawing.Size(22, 13)
         Me.lblLatestVersion.TabIndex = 3
         Me.lblLatestVersion.Text = "---"
         '
@@ -81,40 +82,50 @@ Partial Class Form1
         Me.lblInfo.TabIndex = 4
         Me.lblInfo.Text = "Pronto"
         '
-        'CheckBox1
+        'ckbIgnore
         '
-        Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(16, 46)
-        Me.CheckBox1.Name = "CheckBox1"
-        Me.CheckBox1.Size = New System.Drawing.Size(179, 17)
-        Me.CheckBox1.TabIndex = 5
-        Me.CheckBox1.Text = "Ignora gli aggiornamenti in futuro"
-        Me.CheckBox1.UseVisualStyleBackColor = True
+        Me.ckbIgnore.AutoSize = True
+        Me.ckbIgnore.Location = New System.Drawing.Point(16, 46)
+        Me.ckbIgnore.Name = "ckbIgnore"
+        Me.ckbIgnore.Size = New System.Drawing.Size(179, 17)
+        Me.ckbIgnore.TabIndex = 5
+        Me.ckbIgnore.Text = "Ignora gli aggiornamenti in futuro"
+        Me.ckbIgnore.UseVisualStyleBackColor = True
         '
-        'Button1
+        'btnStart
         '
-        Me.Button1.Location = New System.Drawing.Point(283, 42)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(75, 23)
-        Me.Button1.TabIndex = 6
-        Me.Button1.Text = "Ignora"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.btnStart.Location = New System.Drawing.Point(314, 8)
+        Me.btnStart.Name = "btnStart"
+        Me.btnStart.Size = New System.Drawing.Size(75, 23)
+        Me.btnStart.TabIndex = 6
+        Me.btnStart.Text = "Avvia gioco"
+        Me.btnStart.UseVisualStyleBackColor = True
         '
-        'ProgressBar1
+        'downloadBar
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(13, 85)
-        Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(341, 23)
-        Me.ProgressBar1.TabIndex = 7
+        Me.downloadBar.Location = New System.Drawing.Point(13, 85)
+        Me.downloadBar.Name = "downloadBar"
+        Me.downloadBar.Size = New System.Drawing.Size(376, 23)
+        Me.downloadBar.TabIndex = 7
+        '
+        'btnUpdate
+        '
+        Me.btnUpdate.Location = New System.Drawing.Point(251, 56)
+        Me.btnUpdate.Name = "btnUpdate"
+        Me.btnUpdate.Size = New System.Drawing.Size(138, 23)
+        Me.btnUpdate.TabIndex = 8
+        Me.btnUpdate.Text = "Controlla aggiornamenti"
+        Me.btnUpdate.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(366, 133)
-        Me.Controls.Add(Me.ProgressBar1)
-        Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.CheckBox1)
+        Me.ClientSize = New System.Drawing.Size(401, 133)
+        Me.Controls.Add(Me.btnUpdate)
+        Me.Controls.Add(Me.downloadBar)
+        Me.Controls.Add(Me.btnStart)
+        Me.Controls.Add(Me.ckbIgnore)
         Me.Controls.Add(Me.lblInfo)
         Me.Controls.Add(Me.lblLatestVersion)
         Me.Controls.Add(Me.lblText2)
@@ -132,7 +143,8 @@ Partial Class Form1
     Friend WithEvents lblText2 As Label
     Friend WithEvents lblLatestVersion As Label
     Friend WithEvents lblInfo As Label
-    Friend WithEvents CheckBox1 As CheckBox
-    Friend WithEvents Button1 As Button
-    Friend WithEvents ProgressBar1 As ProgressBar
+    Friend WithEvents ckbIgnore As CheckBox
+    Friend WithEvents btnStart As Button
+    Friend WithEvents downloadBar As ProgressBar
+    Friend WithEvents btnUpdate As Button
 End Class
