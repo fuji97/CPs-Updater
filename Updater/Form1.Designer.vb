@@ -33,7 +33,12 @@ Partial Class MainForm
         Me.downloadBar = New System.Windows.Forms.ProgressBar()
         Me.btnUpdate = New System.Windows.Forms.Button()
         Me.infoPanel = New System.Windows.Forms.Panel()
+        Me.grbVersion = New System.Windows.Forms.GroupBox()
+        Me.radioIncremental = New System.Windows.Forms.RadioButton()
+        Me.radioSetup = New System.Windows.Forms.RadioButton()
+        Me.lblIncrementalStatus = New System.Windows.Forms.Label()
         Me.infoPanel.SuspendLayout()
+        Me.grbVersion.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblStaticCurrentVer
@@ -59,7 +64,7 @@ Partial Class MainForm
         'lblStaticLatestVer
         '
         Me.lblStaticLatestVer.AutoSize = True
-        Me.lblStaticLatestVer.Location = New System.Drawing.Point(164, 13)
+        Me.lblStaticLatestVer.Location = New System.Drawing.Point(176, 13)
         Me.lblStaticLatestVer.Name = "lblStaticLatestVer"
         Me.lblStaticLatestVer.Size = New System.Drawing.Size(82, 13)
         Me.lblStaticLatestVer.TabIndex = 2
@@ -70,7 +75,7 @@ Partial Class MainForm
         Me.lblLatestVersion.AutoSize = True
         Me.lblLatestVersion.BackColor = System.Drawing.Color.LemonChiffon
         Me.lblLatestVersion.Font = New System.Drawing.Font("Verdana", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblLatestVersion.Location = New System.Drawing.Point(248, 12)
+        Me.lblLatestVersion.Location = New System.Drawing.Point(260, 12)
         Me.lblLatestVersion.Name = "lblLatestVersion"
         Me.lblLatestVersion.Size = New System.Drawing.Size(22, 13)
         Me.lblLatestVersion.TabIndex = 3
@@ -89,7 +94,7 @@ Partial Class MainForm
         'ckbIgnore
         '
         Me.ckbIgnore.AutoSize = True
-        Me.ckbIgnore.Location = New System.Drawing.Point(12, 48)
+        Me.ckbIgnore.Location = New System.Drawing.Point(134, 94)
         Me.ckbIgnore.Name = "ckbIgnore"
         Me.ckbIgnore.Size = New System.Drawing.Size(179, 17)
         Me.ckbIgnore.TabIndex = 5
@@ -98,7 +103,7 @@ Partial Class MainForm
         '
         'btnStart
         '
-        Me.btnStart.Location = New System.Drawing.Point(314, 8)
+        Me.btnStart.Location = New System.Drawing.Point(221, 124)
         Me.btnStart.Name = "btnStart"
         Me.btnStart.Size = New System.Drawing.Size(75, 23)
         Me.btnStart.TabIndex = 6
@@ -107,14 +112,14 @@ Partial Class MainForm
         '
         'downloadBar
         '
-        Me.downloadBar.Location = New System.Drawing.Point(12, 73)
+        Me.downloadBar.Location = New System.Drawing.Point(12, 153)
         Me.downloadBar.Name = "downloadBar"
-        Me.downloadBar.Size = New System.Drawing.Size(376, 19)
+        Me.downloadBar.Size = New System.Drawing.Size(322, 19)
         Me.downloadBar.TabIndex = 7
         '
         'btnUpdate
         '
-        Me.btnUpdate.Location = New System.Drawing.Point(250, 44)
+        Me.btnUpdate.Location = New System.Drawing.Point(44, 124)
         Me.btnUpdate.Name = "btnUpdate"
         Me.btnUpdate.Size = New System.Drawing.Size(138, 23)
         Me.btnUpdate.TabIndex = 8
@@ -126,16 +131,61 @@ Partial Class MainForm
         Me.infoPanel.BackColor = System.Drawing.SystemColors.ControlLight
         Me.infoPanel.Controls.Add(Me.lblInfo)
         Me.infoPanel.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.infoPanel.Location = New System.Drawing.Point(0, 103)
+        Me.infoPanel.Location = New System.Drawing.Point(0, 184)
         Me.infoPanel.Name = "infoPanel"
-        Me.infoPanel.Size = New System.Drawing.Size(401, 21)
+        Me.infoPanel.Size = New System.Drawing.Size(346, 21)
         Me.infoPanel.TabIndex = 9
+        '
+        'grbVersion
+        '
+        Me.grbVersion.Controls.Add(Me.radioIncremental)
+        Me.grbVersion.Controls.Add(Me.radioSetup)
+        Me.grbVersion.Location = New System.Drawing.Point(7, 34)
+        Me.grbVersion.Name = "grbVersion"
+        Me.grbVersion.Size = New System.Drawing.Size(103, 77)
+        Me.grbVersion.TabIndex = 10
+        Me.grbVersion.TabStop = False
+        Me.grbVersion.Text = "Versione"
+        '
+        'radioIncremental
+        '
+        Me.radioIncremental.AutoSize = True
+        Me.radioIncremental.Enabled = False
+        Me.radioIncremental.Location = New System.Drawing.Point(9, 45)
+        Me.radioIncremental.Name = "radioIncremental"
+        Me.radioIncremental.Size = New System.Drawing.Size(80, 17)
+        Me.radioIncremental.TabIndex = 1
+        Me.radioIncremental.TabStop = True
+        Me.radioIncremental.Text = "Incremental"
+        Me.radioIncremental.UseVisualStyleBackColor = True
+        '
+        'radioSetup
+        '
+        Me.radioSetup.AutoSize = True
+        Me.radioSetup.Enabled = False
+        Me.radioSetup.Location = New System.Drawing.Point(9, 22)
+        Me.radioSetup.Name = "radioSetup"
+        Me.radioSetup.Size = New System.Drawing.Size(53, 17)
+        Me.radioSetup.TabIndex = 0
+        Me.radioSetup.TabStop = True
+        Me.radioSetup.Text = "Setup"
+        Me.radioSetup.UseVisualStyleBackColor = True
+        '
+        'lblIncrementalStatus
+        '
+        Me.lblIncrementalStatus.AutoSize = True
+        Me.lblIncrementalStatus.Location = New System.Drawing.Point(131, 50)
+        Me.lblIncrementalStatus.Name = "lblIncrementalStatus"
+        Me.lblIncrementalStatus.Size = New System.Drawing.Size(0, 13)
+        Me.lblIncrementalStatus.TabIndex = 2
         '
         'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(401, 124)
+        Me.ClientSize = New System.Drawing.Size(346, 205)
+        Me.Controls.Add(Me.lblIncrementalStatus)
+        Me.Controls.Add(Me.grbVersion)
         Me.Controls.Add(Me.infoPanel)
         Me.Controls.Add(Me.btnUpdate)
         Me.Controls.Add(Me.downloadBar)
@@ -151,6 +201,8 @@ Partial Class MainForm
         Me.Text = "CPs Updater"
         Me.infoPanel.ResumeLayout(False)
         Me.infoPanel.PerformLayout()
+        Me.grbVersion.ResumeLayout(False)
+        Me.grbVersion.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -166,4 +218,8 @@ Partial Class MainForm
     Friend WithEvents downloadBar As ProgressBar
     Friend WithEvents btnUpdate As Button
     Friend WithEvents infoPanel As Panel
+    Friend WithEvents grbVersion As GroupBox
+    Friend WithEvents radioIncremental As RadioButton
+    Friend WithEvents radioSetup As RadioButton
+    Friend WithEvents lblIncrementalStatus As Label
 End Class

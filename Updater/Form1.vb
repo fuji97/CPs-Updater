@@ -11,19 +11,22 @@ Imports System.Math
 Public Class MainForm
     Const APP_NAME = "{0AGHJ15F-G95D-06F4-KM90-G9XZI5DON37D}_is1"
     Const URL = "https://api.github.com/repos/Bl00d-Kirito/HSK-Cremisi_Portals_Demo/releases/latest"
-    Const VERSION_FILE_NAME = "VERSION"
-    Const _Unknown = -2
-    Const _Over = -1
-    Const _Equal = 0
-    Const _Under = 1
-    Const _Check = 2
-    Const _Update = 3
-    Const _Downloading = 4
+    Public Const VERSION_FILE_NAME = "VERSION"
+    Public Const _Unknown = -2
+    Public Const _Over = -1
+    Public Const _Equal = 0
+    Public Const _Under = 1
+    Public Const _Check = 2
+    Public Const _Update = 3
+    Public Const _Downloading = 4
+
+    Dim fileArray As List(Of downlodableFile) = New List(Of downlodableFile)
 
     Dim currentPath As String = Directory.GetCurrentDirectory()
     Dim currentVer As String
     Dim latestVer As String
     Dim downloadLink As String
+    Dim incremetalVer As String
     Dim data As String
     Dim jsonObject As JObject
     Dim items As List(Of JToken)
@@ -31,9 +34,10 @@ Public Class MainForm
     Dim haveNew As Integer
     Dim WithEvents download As WebClient = New WebClient
     Dim downloadStatus As Integer
-    Dim downloadSuccesfull As Boolean = False
+    Dim downloadSuccesfull As Boolean = False ' To Remove
+    Dim WithEvents selectedFile As downlodableFile
 
-    Private Sub MainForm_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+    Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         My.Application.SaveMySettingsOnExit = True
 
         If My.Settings.ignoreUpdate Then
@@ -45,22 +49,22 @@ Public Class MainForm
         changeDownloadStatus(_Check)
         Dim checkResult As Integer = checkUpdate(True)
 
-        If checkResult = _Under And downloadStatus <> _Downloading Then
-            Dim userRes As MsgBoxResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
-            If userRes = MsgBoxResult.Yes Then
-                downloadUpdate()
-            End If
-        ElseIf checkResult <> _Update And downloadStatus <> _Downloading
-            Process.Start(currentPath & "\Game.exe")
+
+        If checkResult <> _Under Then
+            Try
+                Process.Start(currentPath & "\Game.exe")
+            Catch ex As Exception
+                Console.WriteLine(ex.Message)
+            End Try
             Application.Exit()
         End If
     End Sub
 
-    Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.Closing
-        checkbeforeClose()
+    Private Sub MainForm_Close(sender As Object, e As EventArgs) Handles MyBase.Closing
+        checkBeforeClose()
     End Sub
 
-    Private Function checkUpdate(silent As Boolean)
+    Public Function checkUpdate(silent As Boolean)
         currentVer = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" & APP_NAME, "DisplayVersion", Nothing)
         If currentVer Is Nothing Then
             Console.WriteLine("Can't read the version key from Windows registry")
@@ -73,20 +77,16 @@ Public Class MainForm
                 MsgBox("Impossibile leggere la versione attuale del gioco", MsgBoxStyle.Critical + MsgBoxStyle.OkOnly, "Versione del gioco sconosciuta")
             End Try
             If My.Settings.installationAlert Then
-                Dim mUserResponse As MsgBoxResult = MsgBox("Il gioco non è installato correttamente, questo potrebbe compromettere il funzionamento del sistema d'aggiornamento, è consigliabile re-installarlo (i dati di gioco non andranno persi)" & vbCrLf & "Vuoi scaricarlo e installarlo? (No = Non visualizzare più questo messaggio)", MsgBoxStyle.Information + MsgBoxStyle.YesNoCancel, "Installazione non corretta")
-                If mUserResponse = MsgBoxResult.Yes Then
-                    My.Settings.installationAlert = False
-                    If checkUpdate(False) <> _Unknown Then
-                        downloadUpdate()
-                    End If
-                    My.Settings.installationAlert = True
-                ElseIf mUserResponse = MsgBoxResult.No Then
-                    My.Settings.installationAlert = False
-                End If
+                MsgBox("Il gioco non è installato correttamente, questo potrebbe compromettere il funzionamento del sistema d'aggiornamento, è consigliabile re-installarlo", MsgBoxStyle.Information + MsgBoxStyle.OkOnly, "Installazione non corretta")
             End If
         End If
         Console.WriteLine("Current version: " & currentVer)
         lblCurrentVer.Text = currentVer
+
+        radioSetup.Enabled = False
+        radioSetup.Checked = False
+        radioIncremental.Enabled = False
+        radioIncremental.Checked = False
 
         latestVer = "---"
         Try
@@ -114,6 +114,8 @@ Public Class MainForm
             Return _Unknown
         End Try
 
+        fileArray.Clear()
+
         If Not data Is Nothing Then
             Dim ser As JObject = JObject.Parse(data)
             Dim jData As List(Of JToken) = ser.Children().ToList
@@ -125,10 +127,32 @@ Public Class MainForm
                     Console.WriteLine("Latest version: " & latestVer)
                     lblLatestVersion.Text = latestVer
                 ElseIf item.Name = "assets" Then
+                    lblIncrementalStatus.Text = "In questa versione non è ancora presente" & vbCrLf & "alcun aggiornamento incrementale"
                     For Each assets As JObject In item.Value
                         downloadLink = assets("browser_download_url")
                         Console.WriteLine("Download URL: " & downloadLink)
+                        Dim newDownloadableFile As downlodableFile = New downlodableFile(Me, assets, latestVer)
+                        Console.WriteLine("New Downloadable File created As " & newDownloadableFile.type)
+                        fileArray.Add(newDownloadableFile)
+                        Select Case newDownloadableFile.type
+                            Case "Setup"
+                                radioSetup.Enabled = True
+                            Case "Incremental"
+                                If newDownloadableFile.checkCompatibility(currentVer) Then
+                                    radioIncremental.Enabled = True
+                                    lblIncrementalStatus.Text = "E' disponibile un aggiornamento" & vbCrLf & "incrementale per la tua versione!"
+                                Else
+                                    lblIncrementalStatus.Text = "Non è presente alcun aggiornamento" & vbCrLf & "incrementale compatibile con la tua versione"
+                                End If
+                        End Select
                     Next
+                    If radioSetup.Enabled And radioIncremental.Enabled Then   ' bad, very bad control
+                        radioIncremental.Checked = True
+                    ElseIf radioSetup.Enabled
+                        radioSetup.Checked = True
+                    ElseIf radioIncremental.Enabled
+                        radioIncremental.Checked = True
+                    End If
                 End If
             Next
         End If
@@ -150,19 +174,35 @@ Public Class MainForm
         Return haveNew
     End Function
 
-    Private Sub downloadUpdate()
+    Public Sub downloadUpdate()
         Try
             lblInfo.Text = "Avvio download"
-            download.DownloadFileAsync(New Uri(downloadLink), "install.exe")
-            changeDownloadStatus(_Downloading)
-            downloadSuccesfull = True
+            btnUpdate.Enabled = False
+            Dim typeChoosed As String = ""
+            If radioSetup.Checked Then
+                typeChoosed = "Setup"
+            ElseIf radioIncremental.Checked
+                typeChoosed = "Incremental"
+            End If
+            For Each file As downlodableFile In fileArray
+                If file.type = typeChoosed And (typeChoosed <> "Incremental" Or file.compatibleVersion = currentVer) Then
+                    selectedFile = file
+                    file.startDownload()
+                    radioSetup.Enabled = False
+                    radioIncremental.Enabled = False
+                    Exit For
+                End If
+            Next
         Catch ex As WebException
             Console.WriteLine(ex.Message)
             MsgBox("Errore nel download del file: " & ex.Message, MsgBoxStyle.Critical + MsgBoxStyle.OkOnly)
+        Finally
+            lblInfo.Text = "Pronto"
+            btnUpdate.Enabled = True
         End Try
     End Sub
 
-    Private Sub changeDownloadStatus(status As Integer)
+    Public Sub changeDownloadStatus(status As Integer)
         downloadStatus = status
         Select Case status
             Case _Check
@@ -174,31 +214,42 @@ Public Class MainForm
         End Select
     End Sub
 
-    Private Sub download_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles download.DownloadProgressChanged
+    Private Sub download_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs) Handles selectedFile.DownloadProgressChanged
         If downloadStatus = _Downloading Then
             downloadBar.Value = e.ProgressPercentage
-            lblInfo.Text = e.ProgressPercentage & "% - Scaricato " & Round(CDbl(e.BytesReceived) / 1048576, 1) & " di " & Round(CDbl(e.TotalBytesToReceive) / 1048576, 1) & " MB"
+            lblInfo.Text = selectedFile.type & " - " & e.ProgressPercentage & "% - Scaricato " & Round(CDbl(e.BytesReceived) / 1048576, 1) & " di " & Round(CDbl(e.TotalBytesToReceive) / 1048576, 1) & " MB"
         End If
     End Sub
 
-    Private Sub download_DownloadFileCompleted() Handles download.DownloadFileCompleted
-        If downloadSuccesfull Then
-            Try
-                Process.Start(currentPath & "\install.exe")
-            Catch ex As Exception
-                Console.WriteLine(ex.Message)
-            End Try
-            Application.Exit()
+    Private Sub download_DownloadFileCompleted() Handles selectedFile.DownloadFileCompleted
+        If selectedFile.isDownloadSuccessfull Then
+            Dim userResponse As MsgBoxResult = MsgBox("Il download è stato completato, vuoi installarlo?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Download completato")
+            If userResponse = MsgBoxResult.Yes Then
+                Try
+                    Process.Start(currentPath & "\install.exe")
+                    Application.Exit()
+                Catch ex As Exception
+                    Console.WriteLine(ex.Message)
+                End Try
+            Else
+                changeDownloadStatus(_Check)
+                radioIncremental.Enabled = False
+                radioIncremental.Checked = False
+                radioSetup.Enabled = False
+                radioSetup.Checked = False
+            End If
         End If
     End Sub
 
-    Private Function checkVersion(prev As String, last As String)
+    Public Function checkVersion(prev As String, last As String)
         Dim prevArray As List(Of String) = New List(Of String)
         Dim lastArray As List(Of String) = New List(Of String)
         Dim prevValue As Integer
         Dim lastValue As Integer
         Dim haveNew As Integer = 0
         Dim i As Integer = 0
+        Dim preVersionType As String = "Stable"     ' Unused
+        Dim lastVersionType As String = "Stable"    ' Unused
         prevArray.AddRange(Split(prev, "."))
         lastArray.AddRange(Split(last, "."))
         prevArray(0) = prevArray(0).Trim("v")
@@ -207,11 +258,17 @@ Public Class MainForm
         Do While haveNew = 0
             Try
                 prevValue = CInt(prevArray(i))
+            Catch ex As InvalidCastException
+                preVersionType = prevArray(i)
+                prevValue = 0
             Catch ex As Exception
                 prevValue = 0
             End Try
             Try
                 lastValue = CInt(lastArray(i))
+            Catch ex As InvalidCastException
+                preVersionType = prevArray(i)
+                prevValue = 0
             Catch ex As Exception
                 lastValue = 0
             End Try
@@ -228,17 +285,27 @@ Public Class MainForm
         Return haveNew
     End Function
 
-    Private Sub checkbeforeClose()
+    Public Sub checkBeforeClose()
         If downloadStatus = _Downloading Then
             lblInfo.Text = "Annullamento download"
-            downloadSuccesfull = False
-            download.CancelAsync()
-            download.Dispose()
+            btnUpdate.Enabled = False
+            For Each downloadableUpdate In fileArray
+                Select Case downloadableUpdate.type
+                    Case "Setup"
+                        radioSetup.Enabled = True
+                    Case "Incremental"
+                        radioIncremental.Enabled = True
+                End Select
+            Next
+            ' Select Case selectedFile.type
+            'Case "Setup"
+            'radioSetup.Checked = True
+            'End Select
+            selectedFile.stopDownload(currentPath)
             changeDownloadStatus(_Update)
-            Threading.Thread.Sleep(400)
-            My.Computer.FileSystem.DeleteFile(currentPath & "\install.exe")
             downloadBar.Value = 0
             lblInfo.Text = "Pronto"
+            btnUpdate.Enabled = True
         End If
     End Sub
 
@@ -246,35 +313,20 @@ Public Class MainForm
         Select Case downloadStatus
             Case _Check
                 checkUpdate(False)
-
-                If downloadStatus = _Update Then
-                    Dim userRes As MsgBoxResult = MsgBox("Una nuova versione è disponibile (" & latestVer & ") vuoi scaricarla?", MsgBoxStyle.Information + MsgBoxStyle.YesNo, "Nuova versione disponibile")
-                    If userRes = MsgBoxResult.Yes Then
-                        downloadUpdate()
-                    End If
-                End If
             Case _Update
                 btnUpdate.Text = "Scarica aggiornamento"
-                If checkUpdate(False) = _Under Then
-                    downloadUpdate()
-                Else
-                    changeDownloadStatus(_Check)
-                End If
+                ' If checkUpdate(False) = _Under Then
+                downloadUpdate()
+            'Else
+            'changeDownloadStatus(_Check)
+            'End If
             Case _Downloading
-                lblInfo.Text = "Annullamento download"
-                downloadSuccesfull = False
-                download.CancelAsync()
-                download.Dispose()
-                changeDownloadStatus(_Update)
-                Threading.Thread.Sleep(400)
-                My.Computer.FileSystem.DeleteFile(currentPath & "\install.exe")
-                downloadBar.Value = 0
-                lblInfo.Text = "Pronto"
+                checkBeforeClose()
         End Select
     End Sub
 
     Private Sub btnStart_Click(sender As Object, e As EventArgs) Handles btnStart.Click
-        checkbeforeClose()
+        checkBeforeClose()
         Process.Start(currentPath & "\Game.exe")
         Application.Exit()
     End Sub
