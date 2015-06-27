@@ -97,10 +97,10 @@ Public Class MainForm
 
             Dim response As HttpWebResponse = request.GetResponse
             Dim responseStream As System.IO.Stream = response.GetResponseStream
-            response.Dispose()
 
             Dim streamReader As New System.IO.StreamReader(responseStream)
             data = streamReader.ReadToEnd
+            response.Dispose()
             streamReader.Close()
         Catch ex As WebException
             Console.WriteLine(ex.Message)
@@ -253,8 +253,12 @@ Public Class MainForm
         Dim i As Integer = 0
         Dim preVersionType As String = "Stable"     ' Unused
         Dim lastVersionType As String = "Stable"    ' Unused
-        prevArray.AddRange(Split(prev, "."))
-        lastArray.AddRange(Split(last, "."))
+        For Each splitted As String In Split(prev, ".")
+            prevArray.AddRange(Split(splitted, "-"))
+        Next
+        For Each splitted As String In Split(last, ".")
+            lastArray.AddRange(Split(splitted, "-"))
+        Next
         prevArray(0) = prevArray(0).Trim("v")
         lastArray(0) = lastArray(0).Trim("v")
 
