@@ -65,6 +65,7 @@ Public Class MainForm
     End Sub
 
     Public Function checkUpdate(silent As Boolean)
+        btnUpdate.Enabled = False
         currentVer = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" & APP_NAME, "DisplayVersion", Nothing)
         If currentVer Is Nothing Then
             Console.WriteLine("Can't read the version key from Windows registry")
@@ -92,10 +93,11 @@ Public Class MainForm
         Try
             Dim request As HttpWebRequest = HttpWebRequest.Create(URL)
             request.Proxy = Nothing
-            request.UserAgent = "Test"
+            request.UserAgent = "CPs Updater v1.1"
 
             Dim response As HttpWebResponse = request.GetResponse
             Dim responseStream As System.IO.Stream = response.GetResponseStream
+            response.Dispose()
 
             Dim streamReader As New System.IO.StreamReader(responseStream)
             data = streamReader.ReadToEnd
@@ -171,6 +173,7 @@ Public Class MainForm
                 Console.WriteLine("Updated version: " & latestVer & "(= " & currentVer & ")")
             End If
         End If
+        btnUpdate.Enabled = True
         Return haveNew
     End Function
 

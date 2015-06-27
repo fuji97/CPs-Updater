@@ -60,6 +60,7 @@ Public Class downlodableFile
         Try
             Dim request As WebRequest = WebRequest.Create(downloadLink)
             Dim response As WebResponse = request.GetResponse()
+            response.Dispose()
             download.DownloadFileAsync(New Uri(downloadLink), "install.exe")
             mainForm.changeDownloadStatus(MainForm._Downloading)
             isDownloadSuccessfull = True
@@ -72,7 +73,6 @@ Public Class downlodableFile
     Public Sub stopDownload(currentPath As String)
         isDownloadSuccessfull = False
         download.CancelAsync()
-        download.Dispose()
         Threading.Thread.Sleep(400)
         My.Computer.FileSystem.DeleteFile(currentPath & "\install.exe")
     End Sub

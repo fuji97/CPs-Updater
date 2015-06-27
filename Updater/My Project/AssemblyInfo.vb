@@ -11,7 +11,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyTitle("CPs Updater")>
 <Assembly: AssemblyDescription("Update checker for Pokémon Cremisi Portals")>
 <Assembly: AssemblyCompany("Hoseki Team")>
-<Assembly: AssemblyProduct("Updater")>
+<Assembly: AssemblyProduct("CPs Updater")>
 <Assembly: AssemblyCopyright("Copyright © 2015")>
 <Assembly: AssemblyTrademark("")>
 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' utilizzando l'asterisco (*) come descritto di seguito:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")>
-<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyVersion("1.1.0.0")>
+<Assembly: AssemblyFileVersion("1.1.0.0")>
